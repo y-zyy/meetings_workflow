@@ -60,6 +60,11 @@ class MeetingAssistantWorkflow(Workflow):
                 today=datetime.now().date().isoformat(), history=history_text, query=query
             )),
         ])
+        # tool call 결과는 response.raw에 이미 파싱된 IntentResult로 들어온다.
+        # (모델이 JSON schema 화이트리스트에 없어 자동으로 tool_choice="required" 경로를
+        # 타므로, message.content는 그 결과를 다시 직렬화한 문자열일 뿐이다.)
+        if isinstance(response.raw, IntentResult):
+            return response.raw
         return IntentResult.model_validate_json(response.message.content)
 
     @step
